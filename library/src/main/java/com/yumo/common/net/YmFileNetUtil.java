@@ -28,16 +28,14 @@ public class YmFileNetUtil {
             return false;
         }
 
-        InputStream is = YmOkHttpUtil.getBodyInputStream(url);
-        if (is == null){
-            return false;
-        }
-
         boolean result = false;
 
+        InputStream is = null;
         FileOutputStream fileStream = null;
         BufferedInputStream bis = null;
         try {
+            is = YmOkHttpUtil.getBodyInputStream(url);
+
             File file = new File(fileName);
             if (file.exists()){
                 file.delete();

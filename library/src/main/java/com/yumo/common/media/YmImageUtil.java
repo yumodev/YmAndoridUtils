@@ -188,8 +188,18 @@ public class YmImageUtil {
 	 * String 返回图片路径，如果失败就返回为空
 	 */
 	public static Bitmap downImageToBitmap(String urlName){
-		InputStream is = YmOkHttpUtil.getBodyInputStream(urlName);
-		return BitmapFactory.decodeStream(is);
+		InputStream is = null;
+
+		try {
+			is = YmOkHttpUtil.getBodyInputStream(urlName);
+			return BitmapFactory.decodeStream(is);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			YmCloseUtil.close(is);
+		}
+
+		return null;
 	}
 	
 	/**

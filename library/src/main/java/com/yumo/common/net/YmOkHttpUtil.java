@@ -2,7 +2,6 @@ package com.yumo.common.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -20,46 +19,46 @@ public class YmOkHttpUtil {
     public static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
 
-    public static String getBodyString(String url) {
-        Request request = new Request.Builder().url(url).build();
-        return getBodyString(request, new OkHttpClient());
-    }
 
-    private static String getBodyString(Request request, OkHttpClient client){
-        try {
-            Response response = client.newCall(request).execute();
-            if(response.isSuccessful()) {
-                return response.body().string();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    private static String getBodyString(Request request, OkHttpClient client) throws IOException{
+        Response response = client.newCall(request).execute();
+        if(response.isSuccessful()) {
+            return response.body().string();
         }
-
         return null;
     }
+
+    /**
+     * 通过一个URL获取返回的字符串。
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public static String getBodyString(String url) throws IOException{
+        Request request = new Request.Builder().url(url).build();
+        return getBodyString(request, getOkHttpClient());
+    }
+
+
 
     /**
      * 获取返回的body输入流
      * @param url
      * @return
      */
-    public static InputStream getBodyInputStream(String url) {
+    public static InputStream getBodyInputStream(String url) throws IOException{
         OkHttpClient client = getOkHttpClient();
         Request request = new Request.Builder().url(url).build();
 
-        try {
-            Response response = client.newCall(request).execute();
-            if (response != null && response.isSuccessful()) {
-                return response.body().byteStream();
-            }
-        }catch (IOException e) {
-            e.printStackTrace();
+        Response response = client.newCall(request).execute();
+        if (response != null && response.isSuccessful()) {
+            return response.body().byteStream();
         }
 
         return null;
     }
 
-    public static String getBodyString(String url, HashMap<String, String> heads) {
+    public static String getBodyString(String url, Map<String, String> heads) throws IOException{
         Request.Builder builder = new Request.Builder().url(url);
         appendHeaders(builder, heads);
         Request request = builder.build();

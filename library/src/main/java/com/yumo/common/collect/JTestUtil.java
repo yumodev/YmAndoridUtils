@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by yumo on 7/14/16.
+ * Created by yumodev on 7/14/16.
  * 一些测试工具类
  */
 public class JTestUtil {
