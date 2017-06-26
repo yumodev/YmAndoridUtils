@@ -12,7 +12,7 @@ import android.support.annotation.StringRes;
 
 public class YmContext {
     private static YmContext mInstance = null;
-    private Context mAppContext = null;
+    private static Context mAppContext = null;
 
     private YmContext(){};
 
@@ -29,7 +29,7 @@ public class YmContext {
      * 保存ApplicationContext实例。
      * @param context
      */
-    public void setAppContext(Context context){
+    public static void setAppContext(Context context){
         mAppContext = context;
     }
 
@@ -37,7 +37,7 @@ public class YmContext {
      * 获取保存的ApplicationContext实例。
      * @return
      */
-    public Context getAppContext(){
+    public static Context getAppContext(){
         return mAppContext;
     }
 

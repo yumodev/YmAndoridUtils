@@ -34,6 +34,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Base64;
 
 import com.yumo.common.io.YmCloseUtil;
@@ -243,12 +244,12 @@ public class YmImageUtil {
 	 * 2015-1-17
 	 */
 	public static boolean saveBitmapToFile(Bitmap bmp, String fileName) throws IOException{
-		if (bmp == null){
+		if (bmp == null || TextUtils.isEmpty(fileName)){
 			return false;
 		}
 
-		if (!YmFileUtil.isExistFile(fileName, true)){
-			return false;
+		if (!YmFileUtil.isExistFile(fileName)){
+			YmFileUtil.createFile(fileName);
 		}
 
 		File file = new File(fileName);

@@ -1,11 +1,16 @@
-package com.yumodev.common;
+package com.yumo.common;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
+
+import com.yumo.common.net.YmOkHttpUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -20,7 +25,29 @@ public class ExampleInstrumentedTest {
     public void useAppContext() throws Exception {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
+        Log.d("test", appContext.getPackageName());
 
         assertEquals("com.yumodev.common.test", appContext.getPackageName());
+    }
+
+
+    private String getLoginName(){
+        return "yumodev";
+    }
+
+    @Test
+    public void getBodyString() throws Exception {
+
+        String url = "https://api.github.com/users/"+getLoginName();
+        String result = "";
+        try {
+            result = YmOkHttpUtil.getBodyString(url);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (result != null){
+            System.out.println(result);
+        }
     }
 }

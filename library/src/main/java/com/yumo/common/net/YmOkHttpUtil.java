@@ -1,10 +1,14 @@
 package com.yumo.common.net;
 
+import com.yumo.common.log.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -19,6 +23,7 @@ public class YmOkHttpUtil {
     public static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
 
+    private static OkHttpClient mOkHttpClient = null;
 
     private static String getBodyString(Request request, OkHttpClient client) throws IOException{
         Response response = client.newCall(request).execute();
@@ -79,10 +84,6 @@ public class YmOkHttpUtil {
         }
     }
 
-    private static OkHttpClient getOkHttpClient(){
-        return new OkHttpClient();
-    }
-
     /**
      * Post请求，不需要添加Heads
      * @param url
@@ -122,4 +123,37 @@ public class YmOkHttpUtil {
         Response response = client.newCall(request).execute();
         return response.body().string();
     }
+
+
+
+    private static OkHttpClient getOkHttpClient(){
+        if (mOkHttpClient == null){
+            synchronized (YmOkHttpUtil.class){
+                mOkHttpClient = new OkHttpClient.Builder()
+                        .addInterceptor(new LogInterceptor())
+                        .build();
+            }
+        }
+        return mOkHttpClient;
+    }
+
+    private static class LogInterceptor implements Interceptor {
+        @Override
+        public okhttp3.Response intercept(Chain chain) throws IOException {
+            Request request = chain.request();
+            Log.d("OkHttp", "request:" + request.toString());
+            long t1 = System.nanoTime();
+            okhttp3.Response response = chain.proceed(chain.request());
+            long t2 = System.nanoTime();
+            Log.v("OkHttp", String.format(Locale.getDefault(), "Received response for %s in %.1fms%n%s",
+                    response.request().url(), (t2 - t1) / 1e6d, response.headers()));
+            okhttp3.MediaType mediaType = response.body().contentType();
+            String content = response.body().string();
+            Log.i("OkHttp", "response body:" + content);
+            return response.newBuilder()
+                    .body(okhttp3.ResponseBody.create(mediaType, content))
+                    .build();
+        }
+    }
+
 }

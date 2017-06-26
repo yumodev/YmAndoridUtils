@@ -62,10 +62,6 @@ public class YmAdFileUtil {
      */
     public static String getFileCache(Context context, String dir){
         String cachePath = getFileCachePath(context);
-        if(TextUtils.isEmpty(cachePath)){
-            return cachePath;
-        }
-
         String newDir = cachePath + File.separator + dir;
         if (!YmFileUtil.isExistDirectory(newDir)){
             if (!YmFileUtil.createDirectory(newDir)){

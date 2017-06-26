@@ -1,6 +1,7 @@
 package com.yumo.common.io;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -38,5 +39,15 @@ public class YmIoUtil {
         in.read(buffer);
         out.write(buffer);
         return out.toByteArray();
+    }
+
+    public static void close(Closeable close){
+        try {
+            if (close != null){
+                close.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

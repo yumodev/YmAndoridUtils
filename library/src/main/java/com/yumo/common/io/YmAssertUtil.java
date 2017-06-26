@@ -3,6 +3,7 @@ package com.yumo.common.io;
 import android.content.Context;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by yumodev on 17/2/24.
@@ -20,5 +21,22 @@ public class YmAssertUtil {
      */
     public static String getAssertFileToString(Context context, String fileName) throws IOException{
         return YmIoUtil.getStringFromInput(context.getAssets().open(fileName));
+    }
+
+    /**
+     * 复制一个Assert文件
+     * @param context
+     * @param assertFile
+     * @param newFile
+     * @return
+     */
+    public static boolean copyAssertFile(Context context, String assertFile, String newFile){
+        try {
+            InputStream inputStream = context.getAssets().open(assertFile);
+            return YmFileUtil.saveFile(newFile, inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

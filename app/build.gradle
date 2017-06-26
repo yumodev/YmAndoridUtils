@@ -25,6 +25,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile rootProject.ext.appcompat_v7
+    compile 'com.github.yumodev:ym_android_demo_lib:1.0.4'
     testCompile 'junit:junit:4.12'
     compile project(':library')
 }
