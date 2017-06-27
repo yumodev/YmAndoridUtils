@@ -12,13 +12,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Scanner;
+import java.nio.channels.FileChannel;
 
 import android.text.TextUtils;
 
-import com.yumo.common.define.YmDefine;
+import com.yumo.common.log.Log;
+
+import static com.yumo.common.io.YmCloseUtil.close;
 
 public class YmFileUtil {
+    public static final String LOG_TAG = "YmFileUtil";
     /**
      * 检查文件是否存在，不存在则创建该文件
      * @param fileName
@@ -301,6 +304,51 @@ public class YmFileUtil {
         return result;
     }
 
+
+    /**
+     * 递归删除目录
+     * @param dir
+     * @return
+     */
+    public static boolean deleteDir(File dir) {
+        if (dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+        return dir.delete();
+    }
+
+    /**
+     * 打印目录
+     * @param path
+     */
+    public static void printDir(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            File[] files = file.listFiles();
+            if (files.length == 0) {
+                Log.i(LOG_TAG, "dir empty!"+path);
+                return;
+            } else {
+                for (File file2 : files) {
+                    if (file2.isDirectory()) {
+                        Log.i(LOG_TAG, "dir:" + file2.getAbsolutePath());
+                        printDir(file2.getAbsolutePath());
+                    } else {
+                        Log.i(LOG_TAG, "file:" + file2.getAbsolutePath());
+                    }
+                }
+            }
+        } else {
+            Log.i(LOG_TAG, "dir no exist!");
+        }
+    }
+
     /**
      * 重命名文件，如果新文件已存在，返回false
      * @param oldName
@@ -376,5 +424,38 @@ public class YmFileUtil {
             return fileName.substring(nFind);
         }
         return "";
+    }
+
+
+    /**
+     * 复制文件。默认会覆盖
+     * @param source
+     * @param target
+     */
+    public static boolean copyFile(String source, String target){
+        return copyFile(new File(source), new File(target));
+    }
+
+    public static boolean copyFile(File source, File target) {
+        FileChannel in = null;
+        FileChannel out = null;
+        FileInputStream inStream = null;
+        FileOutputStream outStream = null;
+        try {
+            inStream = new FileInputStream(source);
+            outStream = new FileOutputStream(target);
+            in = inStream.getChannel();
+            out = outStream.getChannel();
+            in.transferTo(0, in.size(), out);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(inStream);
+            close(in);
+            close(outStream);
+            close(out);
+        }
+        return false;
     }
 }
