@@ -7,7 +7,7 @@ public class YmDeviceUtil {
 
     /**
      * 获取应用的最大内存占用字节。
-     * yumo
+     * yumodev
      *
      * @return long
      * 2015-3-14

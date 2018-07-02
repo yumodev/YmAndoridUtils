@@ -5,6 +5,8 @@
  */
 package com.yumo.common.io;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,9 +15,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import android.text.TextUtils;
 
+import com.yumo.common.define.YmDefine;
 import com.yumo.common.log.Log;
 
 import static com.yumo.common.io.YmCloseUtil.close;
@@ -163,13 +168,17 @@ public class YmFileUtil {
         return saveFile(fileName, content.getBytes());
     }
 
+    public static boolean saveFile(String fileName, byte[] bytes){
+        return saveFile(fileName, bytes, false);
+    }
+
     /**
      * 保存Bytes 到一个文件
      * @param fileName
      * @param bytes
      * @return
      */
-    public static boolean saveFile(String fileName, byte[] bytes) {
+    public static boolean saveFile(String fileName, byte[] bytes, boolean append) {
         if (bytes == null){
             return false;
         }
@@ -180,7 +189,17 @@ public class YmFileUtil {
 
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(fileName, false);
+            if (append){
+                if (!isExistFile(fileName)){
+                    createFile(fileName);
+                }
+            }else {
+                if (!createFile(fileName, true)){
+                    return false;
+                }
+            }
+
+            out = new FileOutputStream(fileName, append);
             out.write(bytes);
             return true;
         } catch (FileNotFoundException e) {
@@ -457,5 +476,63 @@ public class YmFileUtil {
             close(out);
         }
         return false;
+    }
+
+
+    /**
+     * 将存放在sourceFilePath目录下的源文件，打包成fileName名称的zip文件，并存放到zipFilePath路径下
+     * @param sourceFilePath :待压缩的文件路径
+     * @param zipFileName :压缩后存放路径
+     * @return
+     */
+    public static int fileToZip(String sourceFilePath,String zipFileName){
+        boolean flag = false;
+        File sourceFile = new File(sourceFilePath);
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        FileOutputStream fos = null;
+        ZipOutputStream zos = null;
+
+        if(sourceFile.exists() == false){
+            return YmDefine.ERROR_FILE_IO_ERROR;
+        }else{
+            try {
+                File zipFile = new File(zipFileName);
+                if(zipFile.exists()){
+                    return YmDefine.ERROR_FILE_EXISTS;
+                }else{
+                    File[] sourceFiles = sourceFile.listFiles();
+                    if(null == sourceFiles || sourceFiles.length<1){
+                        System.out.println("待压缩的文件目录：" + sourceFilePath + "里面不存在文件，无需压缩.");
+                    }else{
+                        fos = new FileOutputStream(zipFile);
+                        zos = new ZipOutputStream(new BufferedOutputStream(fos));
+                        byte[] bufs = new byte[1024*10];
+                        for(int i=0;i<sourceFiles.length;i++){
+                            //创建ZIP实体，并添加进压缩包
+                            ZipEntry zipEntry = new ZipEntry(sourceFiles[i].getName());
+                            zos.putNextEntry(zipEntry);
+                            //读取待压缩的文件并写进压缩包里
+                            fis = new FileInputStream(sourceFiles[i]);
+                            bis = new BufferedInputStream(fis, 1024*10);
+                            int read = 0;
+                            while((read=bis.read(bufs, 0, 1024*10)) != -1){
+                                zos.write(bufs,0,read);
+                            }
+                        }
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                return YmDefine.ERROR_FILE_IO_ERROR;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return YmDefine.ERROR_FILE_IO_ERROR;
+            } finally{
+                YmIoUtil.close(bis);
+                YmIoUtil.close(zos);
+            }
+        }
+        return YmDefine.FILE_SUCCESS;
     }
 }

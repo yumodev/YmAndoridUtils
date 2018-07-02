@@ -1,8 +1,12 @@
 package com.yumo.common.log;
 
+import android.text.TextUtils;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by yumodev on 17/3/10.
@@ -10,6 +14,11 @@ import java.net.UnknownHostException;
  */
 
 public class Log {
+
+    /**
+     * 崩溃文件。
+     */
+    public static final String TAG_CRASH_LOG = "crash";
 
     /**
      * Priority constant for the println method; use Log.v.
@@ -47,6 +56,12 @@ public class Log {
     private static boolean mEnable = false;
 
     /**
+     *
+     */
+    public static final String LIB_TAG = "ymlib";
+
+    private static List<LogFileInfo> mListFiles = new ArrayList<>();
+    /**
      * 设置是否打印日志。
      *
      * @param enable
@@ -65,6 +80,7 @@ public class Log {
     }
 
     private Log() {
+        mListFiles.add(new LogFileInfo(TAG_CRASH_LOG));
     }
 
     /**
@@ -78,7 +94,7 @@ public class Log {
         if (isEnable()) {
             return 0;
         }
-        return println(LOG_ID_MAIN, VERBOSE, tag, msg);
+        return println(LOG_ID_MAIN, VERBOSE, tag, msg, false);
     }
 
     /**
@@ -93,7 +109,7 @@ public class Log {
         if (isEnable()) {
             return 0;
         }
-        return println(LOG_ID_MAIN, VERBOSE, tag, msg + '\n' + getStackTraceString(tr));
+        return println(LOG_ID_MAIN, VERBOSE, tag, msg + '\n' + getStackTraceString(tr), false);
     }
 
     /**
@@ -107,7 +123,7 @@ public class Log {
         if(isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, DEBUG, tag, msg);
+        return println(LOG_ID_MAIN, DEBUG, tag, msg, false);
     }
 
     /**
@@ -122,7 +138,14 @@ public class Log {
         if(isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, DEBUG, tag, msg + '\n' + getStackTraceString(tr));
+        return println(LOG_ID_MAIN, DEBUG, tag, msg + '\n' + getStackTraceString(tr), false);
+    }
+
+    public static int d(String tag, String msg, boolean file){
+        if (isEnable()){
+            return 0;
+        }
+        return println(LOG_ID_MAIN, DEBUG, tag, msg, file);
     }
 
     /**
@@ -136,7 +159,7 @@ public class Log {
         if(isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, INFO, tag, msg);
+        return println(LOG_ID_MAIN, INFO, tag, msg, false);
     }
 
     /**
@@ -151,9 +174,15 @@ public class Log {
         if(!isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, INFO, tag, msg + '\n' + getStackTraceString(tr));
+        return println(LOG_ID_MAIN, INFO, tag, msg + '\n' + getStackTraceString(tr), false);
     }
 
+    public static int i(String tag, String msg, boolean file) {
+        if(isEnable()){
+            return 0;
+        }
+        return println(LOG_ID_MAIN, INFO, tag, msg, file);
+    }
     /**
      * Send a {@link #WARN} log message.
      *
@@ -165,7 +194,7 @@ public class Log {
         if(!isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, WARN, tag, msg);
+        return println(LOG_ID_MAIN, WARN, tag, msg, false);
     }
 
     /**
@@ -180,7 +209,7 @@ public class Log {
         if(!isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, WARN, tag, msg + '\n' + getStackTraceString(tr));
+        return println(LOG_ID_MAIN, WARN, tag, msg + '\n' + getStackTraceString(tr), false);
     }
 
     /*
@@ -193,7 +222,7 @@ public class Log {
         if(!isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, WARN, tag, getStackTraceString(tr));
+        return println(LOG_ID_MAIN, WARN, tag, getStackTraceString(tr), false);
     }
 
     /**
@@ -207,7 +236,14 @@ public class Log {
         if(!isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, ERROR, tag, msg);
+        return println(LOG_ID_MAIN, ERROR, tag, msg, false);
+    }
+
+    public static int e(String tag, String msg, boolean file) {
+        if(!isEnable()){
+            return 0;
+        }
+        return println(LOG_ID_MAIN, ERROR, tag, msg, file);
     }
 
     /**
@@ -222,7 +258,7 @@ public class Log {
         if(!isEnable()){
             return 0;
         }
-        return println(LOG_ID_MAIN, ERROR, tag, msg + '\n' + getStackTraceString(tr));
+        return println(LOG_ID_MAIN, ERROR, tag, msg + '\n' + getStackTraceString(tr), false);
     }
 
     /**
@@ -262,7 +298,7 @@ public class Log {
      * @return The number of bytes written.
      */
     public static int println(int priority, String tag, String msg) {
-        return println(LOG_ID_MAIN, priority, tag, msg);
+        return println(LOG_ID_MAIN, priority, tag, msg, false);
     }
 
     /**
@@ -286,12 +322,88 @@ public class Log {
      */
     public static final int LOG_ID_CRASH = 4;
 
-    /**
-     * @hide
-     */
-    @SuppressWarnings("unused")
     public static int println(int bufID,
-                              int priority, String tag, String msg) {
+                              int priority, String tag, String msg, boolean file) {
+        if (file){
+            LogFileUtil.saveMessage(tag, msg, getFileInfo(tag));
+        }
+
+        switch (priority){
+            case VERBOSE:{
+                android.util.Log.v(tag, msg);
+                break;
+            }
+            case DEBUG:{
+                android.util.Log.d(tag, msg);
+                break;
+            }
+            case INFO:{
+                android.util.Log.i(tag, msg);
+                break;
+            }
+            case WARN:{
+                android.util.Log.w(tag, msg);
+                break;
+            }
+            case ERROR:{
+                android.util.Log.e(tag, msg);
+                break;
+            }
+        }
         return 0;
     }
+
+    /**
+     * 添加日志文件
+     * @param info
+     */
+    public static void addFileInfo(LogFileInfo info){
+        mListFiles.add(info);
+    }
+
+    /**
+     * 移除日志文件
+     * @param info
+     */
+    public static void removeFileInfo(LogFileInfo info){
+        mListFiles.remove(info);
+    }
+
+    public static LogFileInfo getFileInfo(String tag){
+        LogFileInfo defaultInfo = null;
+        for (LogFileInfo info : mListFiles){
+            if (tag.equals(info.getTag())){
+                return info;
+            }
+
+            if (TextUtils.isEmpty(tag)){
+                defaultInfo = info;
+            }
+        }
+
+        return defaultInfo;
+    }
+
+    /**
+     * 通过tag删除文件
+     * @param tag
+     */
+    public static void removeFileByTag(String tag){
+        if (TextUtils.isEmpty(tag)){
+            return;
+        }
+
+        ListIterator<LogFileInfo> iterator = mListFiles.listIterator();
+        while (iterator.hasNext()){
+            if (tag.equals(iterator.next().getTag())){
+                iterator.remove();
+            }
+        }
+    }
+
+    public static void setLogRootDir(String dir){
+        LogFileUtil.setLogDir(dir);
+    }
+
+
 }

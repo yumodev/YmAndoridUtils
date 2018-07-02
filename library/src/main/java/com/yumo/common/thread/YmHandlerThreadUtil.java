@@ -1,4 +1,4 @@
-package com.yumo.common.android;
+package com.yumo.common.thread;
 
 import android.app.Activity;
 import android.os.Handler;

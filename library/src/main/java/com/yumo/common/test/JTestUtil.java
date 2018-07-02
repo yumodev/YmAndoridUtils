@@ -1,4 +1,4 @@
-package com.yumo.common.collect;
+package com.yumo.common.test;
 
 import java.util.Iterator;
 import java.util.List;

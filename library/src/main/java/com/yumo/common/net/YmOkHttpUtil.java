@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -44,6 +45,17 @@ public class YmOkHttpUtil {
         return getBodyString(request, getOkHttpClient());
     }
 
+    /**
+     * 通过一个URL获取返回的字符串。
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public static Response getBodyResponse(String url) throws IOException{
+        Request request = new Request.Builder().url(url).build();
+        return getOkHttpClient().newCall(request).execute();
+    }
+
 
 
     /**
@@ -71,6 +83,9 @@ public class YmOkHttpUtil {
         OkHttpClient client = getOkHttpClient();
         return getBodyString(request, client);
     }
+
+
+
 
     public static void appendHeaders(Request.Builder builder, Map<String, String> heads){
         if (heads == null){
@@ -131,6 +146,7 @@ public class YmOkHttpUtil {
             synchronized (YmOkHttpUtil.class){
                 mOkHttpClient = new OkHttpClient.Builder()
                         .addInterceptor(new LogInterceptor())
+                        .connectTimeout(30, TimeUnit.SECONDS)
                         .build();
             }
         }

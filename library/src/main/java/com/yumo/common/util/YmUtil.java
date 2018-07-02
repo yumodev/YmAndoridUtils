@@ -8,6 +8,10 @@ import java.util.UUID;
  */
 public class YmUtil {
 
+    /**
+     * 生成UUID
+     * @return
+     */
     public static String createUUID(){
         return UUID.randomUUID().toString();
     }

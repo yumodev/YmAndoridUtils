@@ -24,6 +24,17 @@ public class YmAssertUtil {
     }
 
     /**
+     * 从Assets 读取一个文件到String中
+     * @param context
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public static byte[] getAssertFileToBytes(Context context, String fileName) throws IOException{
+        return YmIoUtil.getBytesFromInput(context.getAssets().open(fileName));
+    }
+
+    /**
      * 复制一个Assert文件
      * @param context
      * @param assertFile

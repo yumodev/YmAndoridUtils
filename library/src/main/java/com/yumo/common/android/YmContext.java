@@ -14,7 +14,7 @@ public class YmContext {
     private static YmContext mInstance = null;
     private static Context mAppContext = null;
 
-    private YmContext(){};
+    private YmContext(){}
 
     public static YmContext getInstance(){
         if (mInstance == null){

@@ -13,12 +13,24 @@ public class YmDefine {
     /**
      * 文件未找到
      */
-    public static final int FILE_NO_FOUND = -1;
+    public static final int ERROR_FILE_NO_FOUND = 1;
+
+    /**
+     * 文件或目录已存在
+     */
+    public static final int ERROR_FILE_EXISTS = 2;
+
     /**
      * 发生了IO异常
      */
-    public static final int FILE_IO_ERROR = -2;
+    public static final int ERROR_FILE_IO_ERROR = 3;
 
+    /**
+     * 目录为空
+     *
+     * 压缩目录的时候，不需要压缩。
+     */
+    public static final int ERROR_DIR_IS_EMPTY = 4;
 
     /**
      * 文件的相关单位转换

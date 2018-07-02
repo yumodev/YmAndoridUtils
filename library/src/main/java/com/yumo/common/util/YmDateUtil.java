@@ -22,14 +22,14 @@ public class YmDateUtil {
      * @param duration 时间间隔。 单位是毫秒
      * @return
      */
-    public static String formatDuration(int duration) {
+    public static String formatDuration(long duration) {
         String strTime = "00:00";
         do {
             if (duration <= 0) {
                 break;
             }
 
-            int second = duration / MISEC_UINTS_SECOND;
+            long second = duration / MISEC_UINTS_SECOND;
             if (second < SECOND_UINTS_MINUTE) {
                 strTime = String.format(Locale.ENGLISH, "00:%02d", second);
                 break;
@@ -62,6 +62,10 @@ public class YmDateUtil {
         return new SimpleDateFormat("yyyy-MM-dd kk:mm:ss", Locale.US).format(new Date(time));
     }
 
+    public static String getStrTime() {
+        return new SimpleDateFormat("yyyy-MM-dd kk:mm:ss", Locale.US).format(new Date());
+    }
+
     public static String getStrDay() {
         Calendar now = Calendar.getInstance();
         return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(now.getTime());
@@ -81,6 +85,44 @@ public class YmDateUtil {
     public static int getDay(){
         Calendar now = Calendar.getInstance();
         return now.get(Calendar.DAY_OF_MONTH);
+    }
+
+
+    /**
+     * 获取本月第0天的时间
+     * @return
+     */
+    public static long getTimesMonthMorning() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+        return cal.getTimeInMillis();
+    }
+
+    /**
+     * 比较两个时间的日期是否相同
+     * @param d1
+     * @param d2
+     * @return
+     */
+    public static boolean isSameDate(long d1, long d2){
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTimeInMillis(d1);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTimeInMillis(d2);
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+
+    /**
+     * 获取当前时间的前一天时间
+     * @return
+     */
+    public static long getYesterTime(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+        return calendar.getTimeInMillis();
     }
 
 }

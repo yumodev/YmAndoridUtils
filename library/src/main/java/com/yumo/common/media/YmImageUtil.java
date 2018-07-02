@@ -1,23 +1,10 @@
 /**
  * YmImageUtil.java
- * yumoDec
+ * yumodev
  * 2015-1-15
  * 图片工具类。
  */
 package com.yumo.common.media;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,13 +21,24 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Base64;
 
 import com.yumo.common.io.YmCloseUtil;
 import com.yumo.common.io.YmFileUtil;
+import com.yumo.common.log.Log;
 import com.yumo.common.net.YmOkHttpUtil;
-import com.yumo.common.net.YmFileNetUtil;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class YmImageUtil {
 
@@ -188,7 +186,7 @@ public class YmImageUtil {
 	 * @return
 	 * String 返回图片路径，如果失败就返回为空
 	 */
-	public static Bitmap downImageToBitmap(String urlName){
+	public static Bitmap saveImageToBitmap(String urlName){
 		InputStream is = null;
 
 		try {
@@ -211,7 +209,7 @@ public class YmImageUtil {
 	 * String 返回图片路径，如果失败就返回为空
 	 * 2015-1-15
 	 */
-	public static boolean downImage(String urlName, OutputStream outputStream){
+	public static boolean saveImageToStream(String urlName, OutputStream outputStream){
 		BufferedOutputStream out = null;
 		BufferedInputStream in = null;
 		try {
@@ -250,6 +248,9 @@ public class YmImageUtil {
 
 		if (!YmFileUtil.isExistFile(fileName)){
 			YmFileUtil.createFile(fileName);
+		}else{
+			YmFileUtil.deleteFile(fileName);
+			YmFileUtil.createFile(fileName);
 		}
 
 		File file = new File(fileName);
@@ -259,6 +260,7 @@ public class YmImageUtil {
 		YmCloseUtil.close(out);
 		return true;
 	}
+
 
 	/**
 	 * 打开一张图片
@@ -270,7 +272,16 @@ public class YmImageUtil {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.addCategory(Intent.CATEGORY_DEFAULT);
-		intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+			intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+		}else{
+			intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			String providerName = context.getPackageName()+".fileProvider";
+			Log.i(Log.LIB_TAG, providerName+" "+file);
+			Uri contentUri = FileProvider.getUriForFile(context, providerName, file);
+			intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+		}
+
 		try {
 			context.startActivity(intent);
 		} catch (Exception e) {
