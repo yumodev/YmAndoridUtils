@@ -1,6 +1,5 @@
 package com.yumo.common.net;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -51,11 +50,15 @@ public class YmNetUtils {
                     mNetOk = true;
                 }
 
-                @Override
-                public void onUnavailable() {
-                    super.onUnavailable();
+                public void onUnavailable(){
                     mNetOk = false;
                 }
+
+//                @Override
+//                public void onUnavailable() {
+//                    super.onUnavailable();
+//                    mNetOk = false;
+//                }
 
 
             });
